@@ -1,0 +1,10 @@
+# This file defines the configuration of the iperf3 client pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: iperf3-client
+spec:
+  containers:
+  - name: iperf3
+    image: networkstatic/iperf3
+    command: ["sleep", "infinity"]
