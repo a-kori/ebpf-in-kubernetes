@@ -46,10 +46,10 @@ do
         -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--kubelet-insecure-tls"}]'
 
     # Apply iPerf3 configuration
-    echo "Deploying iPerf3 server and client..."
+    echo "🔽 Deploying iPerf3 server and client..."
     kubectl apply -f iperf3-server.yaml
     kubectl apply -f iperf3-client.yaml
-    sleep 20
+    sleep 30
 
     while true
     do
@@ -71,12 +71,12 @@ do
         fi
 
         if [ "$protocol" == "udp" ]; then
-            echo "Choose the bandwidth (format 10M, 1G etc.), -b: "
+            echo "Choose the bandwidth (format 100M, 1G etc.), -b: "
             read bandwidth
             echo "Choose the packet size in bytes, -l: "
             read size
         else
-            echo "Choose the congestion window size (up to 416K), -w: "
+            echo "Choose the congestion window size (format 64K, 1M etc,), -w: "
             read cwnd
         fi
         if [ -z "$bandwidth" ]; then

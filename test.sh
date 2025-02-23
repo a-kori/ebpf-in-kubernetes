@@ -41,18 +41,26 @@ parse_udp () {
 
 # Set arguments
 OPT=$1
-PROTOOL=$2
+PROTOCOL=$2
 DURATION=$3
 STREAMS=$4
 BANDWIDTH=$5
 SIZE=$6
 CWND=$7
 
-if [ "$PROTOOL" == "udp" ]; then
-    # Determine iperf3 command
-    echo "Running iPerf3 test for $OPT ($PROTOOL, $DURATION seconds, $STREAMS streams, $BANDWIDTH bandwidth, $SIZE packet size)..."
+if [ "$PROTOCOL" == "udp" ]; then
+    # Run iperf3 command
+    echo "Running iPerf3 test for $OPT ($PROTOCOL, $DURATION seconds, $STREAMS streams, ${BANDWIDTH}bps bandwidth, $SIZE bytes packet size)..."
     kubectl exec iperf3-client -- iperf3 -c iperf3-service -u -t $DURATION -P $STREAMS -b $BANDWIDTH -l $SIZE > $OUTPUT_FILE
 
+    # Measure CPU/memory utilization on dataplane pod
+    SEARCH="$OPT"
+    if [ "$OPT" == "calico" ]; then
+        SEARCH="$OPT-node"
+    fi
+    CPU_USAGE=$(kubectl top pods -n kube-system | grep $SEARCH | awk '{print $2}' | head -n 1)
+    MEM_USAGE=$(kubectl top pods -n kube-system | grep $SEARCH | awk '{print $3}' | head -n 1)
+    
     # Parse throughput, jitter and packet loss
     parse_udp
 
@@ -63,14 +71,22 @@ if [ "$PROTOOL" == "udp" ]; then
     fi
     echo "$OPT,$PROTOCOL,$DURATION,$STREAMS,$BANDWIDTH,$SIZE,$THROUGHPUT,$JITTER,$PACKET_LOSS_RAW ($PACKET_LOSS_PERCENT),$CPU_USAGE,$MEM_USAGE,$(date +%Y-%m-%d_%H:%M:%S)" >> "$LOG_FILE"
 else
-    # Determine iperf3 command
-    param=""
+    # Run iperf3 command
+    PARAM=""
     if [ "$CWND" != "unset" ]; then
-        param="-w $CWND"
+        PARAM="-w $CWND"
     fi
-    echo "Running iPerf3 test for $OPT ($PROTOOL, $DURATION seconds, $STREAMS streams, $CWND congestion window)..."
-    kubectl exec iperf3-client -- iperf3 -c iperf3-service -t $DURATION -P $STREAMS $param > $OUTPUT_FILE
+    echo "Running iPerf3 test for $OPT ($PROTOCOL, $DURATION seconds, $STREAMS streams, $CWND congestion window)..."
+    kubectl exec iperf3-client -- iperf3 -c iperf3-service -t $DURATION -P $STREAMS $PARAM > $OUTPUT_FILE
 
+    # Measure CPU/memory utilization on dataplane pod
+    SEARCH="$OPT"
+    if [ "$OPT" == "calico" ]; then
+        SEARCH="$OPT-node"
+    fi
+    CPU_USAGE=$(kubectl top pods -n kube-system | grep $SEARCH | awk '{print $2}' | head -n 1)
+    MEM_USAGE=$(kubectl top pods -n kube-system | grep $SEARCH | awk '{print $3}' | head -n 1)
+    
     # Parse throughput and retransmissionss
     parse_tcp
 
