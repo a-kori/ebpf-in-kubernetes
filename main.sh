@@ -76,7 +76,7 @@ do
             echo "Choose the packet size in bytes, -l: "
             read size
         else
-            echo "Choose the congestion window size (format 64K, 1M etc,), -w: "
+            echo "Choose the congestion window size (format 64K, 1M etc.), -w: "
             read cwnd
         fi
         if [ -z "$bandwidth" ]; then
