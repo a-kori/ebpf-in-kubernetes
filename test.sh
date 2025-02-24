@@ -1,7 +1,8 @@
 #!/bin/bash
-
 OUTPUT_FILE="results/output.txt"
 
+# parse_tcp parses the iPerf3 test output for TCP traffic
+# and extracts the bitrate and retransmissions metrics
 parse_tcp () {
     # Check if the iPerf3 output file exists
     if [[ ! -f "$OUTPUT_FILE" ]]; then
@@ -17,6 +18,8 @@ parse_tcp () {
     RETRANSMITS=$(echo "$SENDER_LINE" | awk '{print $(NF-1)}')
 }
 
+# parse_udp parses the iPerf3 test output for UDP traffic
+# and extracts the throughput, jitter and packet loss metrics
 parse_udp () {
     # Check if the iPerf3 output file exists
     if [[ ! -f "$OUTPUT_FILE" ]]; then
