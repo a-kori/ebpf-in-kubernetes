@@ -47,8 +47,8 @@ do
 
     # Apply iPerf3 configuration
     echo "🔽 Deploying iPerf3 server and client..."
-    kubectl apply -f iperf3-server.yaml
-    kubectl apply -f iperf3-client.yaml
+    kubectl apply -f config/iperf3-server.yaml
+    kubectl apply -f config/iperf3-client.yaml
     sleep 30
 
     while true
